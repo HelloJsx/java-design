@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="Factory" />
         <module name="Template" />
+        <module name="Builder" />
       </profile>
     </annotationProcessing>
   </component>
