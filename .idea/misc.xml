@@ -7,6 +7,7 @@
         <option value="$PROJECT_DIR$/Factory/pom.xml" />
         <option value="$PROJECT_DIR$/Template/pom.xml" />
         <option value="$PROJECT_DIR$/Builder/pom.xml" />
+        <option value="$PROJECT_DIR$/Proxy/pom.xml" />
       </list>
     </option>
   </component>
