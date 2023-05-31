@@ -185,3 +185,142 @@ public class Main {
 零件的组装是该模式的核心所在，组装的顺序不同，对象的效能也不同，这才是建造者模式要表达的核心意义，而怎么样才能更好的达到效果呢？引入模板方法是一个非常简单而有效的办法。
 
 建造者模式最主要的功能是基本方法的调用顺序安排，也就是说这些基本方法已经实现了，通俗的说就是零件的装配，顺序不同产生的对象也不同。而工厂模式的重点则是创建，创建零件是它主要的职责，组装顺序则不是它关心的。
+
+# 设计模式-代理模式
+
+## 代理模式定义
+
+代理模式是一个使用率非常高的模式，其定义如下：为其他对象提供一种代理以控制对这个对象的访问
+
+代理模式也叫做委托模式，它是一项基本设计技巧。许多其他的模式，如状态模式、策略模式、访问者模式本质上实在更特殊的场合采用了委托模式，而且在日常的应用中，代理模式可以提供非常好的访问控制，代理模式中一般有这三种角色：
+
+- Subject 抽象主题角色：抽象主题类可以是接口，是一个最普通的业务类型定义，无特殊要求
+  
+- RealSubject 具体主题角色，也叫做被委托角色，被代理角色，是业务逻辑的具体执行者
+  
+- Proxy 代理主题角色，也叫做委托类、代理类。他负责对真实角色的应用，把所有抽象主题类定义的方法限制委托给真实主题角色实现，并且在真实主题角色处理完毕前后做预处理和善后处理工作
+  
+
+## 代理模式的优点
+
+- 职责清晰：真实的角色就是实现实际的业务逻辑，不用关心其他非本职责的事务，通过后期的代理完成一件事务，附带的结果就是编程简洁清晰
+  
+- 高扩展性：具体主题角色是随时都会发生变化的，只要它实现了接口，不管它怎么变化，都受接口所管制，那我们的代理类完全可以在不做任何修改的情况下使用
+  
+- 智能化：类似于Struts如何将表单元素映射到对象上的
+  
+
+## 代理模式的拓展
+
+### 普通代理
+
+在网络上代理服务器设置分别为透明代理和普通代理。透明代理就是用户用设置代理服务器地址，就可以直接访问，也就是说代理服务器对用户来说是透明的，不用知道它存在的，普通代理则是需要用户自己设置代理服务器的IP地址，用户必须知道代理的存在。设计模式种的普通代理和强制代理也是类似的一种接口，普通代理就是我们要知道代理的存在，就是类似于Proxy这种代理类的存在，然后才能访问；强制代理则是调用者直接调用真实角色，不用关心代理是否存在，其代理的产生是由真实角色决定的，这样的解释还是比较复杂，我们还是使用实例来掩饰。
+
+首先是普哦她那个代理，它的要求就是客户端只能访问代理角色，而不能访问真实角色，这是比较简单的。例如如下的例子
+
+普通代理的游戏者
+
+```java
+public class GamePlayer implements IGamePlayer{
+
+    private String name = "";
+
+    public GamePlayer(String _name) {
+        this.name = _name;
+    }
+
+    @Override
+    public void login(String user, String password) {
+        System.out.println(user + this.name);
+    }
+
+    @Override
+    public void killBoss() {
+        System.out.println(this.name + "kill the boss");
+    }
+
+    @Override
+    public void upgrade() {
+        System.out.println(this.name + "level up");
+    }
+}
+```
+
+普通代理的代理者
+
+```java
+public class GamePlayerProxy implements IGamePlayer{
+
+    private IGamePlayer gamePlayer = null;
+
+    public GamePlayerProxy(IGamePlayer _gamePlayer) {
+        this.gamePlayer = _gamePlayer;
+    }
+
+    @Override
+    public void login(String user, String password) {
+        this.gamePlayer.login(user, password);
+    }
+
+    @Override
+    public void killBoss() {
+        this.gamePlayer.killBoss();
+    }
+
+    @Override
+    public void upgrade() {
+        this.gamePlayer.upgrade();
+    }
+}
+```
+
+仅仅修改了构造函数，传递进来一个代理者名称即可进行代理，在这种改造下，系统更加简洁了，调用者只知道代理存在就可以了，不用知道代理了谁。同时场景类也稍作改动。在该模式下，调用者只知道代理而不用知道真实的角色是谁，屏蔽了真实角色的变更对高层模块的影响，真实的主题角色想怎么修改就怎么修改，对高层次的模块没有任何影响，只要你实现了接口所对应的方法，该模式非常适合对拓展性要求较高的场合。
+
+注意：普通代理的约束问题，尽量通过团队内的编程规范来约束，因为每一个主题类是可被重用的和可维护的，使用技术约束的方式对系统维护是一种非常不利的因素。
+
+### 强制代理
+
+强制代理在设计模式中比较的另类，因为一般的思维都是通过代理找到真实的角色，但是强制代理确实要“强制”你必须通过真实角色查找到代理角色，否则你不能访问。不管你是通过代理类还是通过直接new一个主题角色类，都不能访问，也就是说由真实角色管理代理角色。这么说吧，高层模块new了一个真实角色的对象，返回的确实代理角色，这就好比是你和一个明星比较熟，相互认识，有件事情你需要向他确认一下，于是你就直接拨通了他的电话，但是他告诉你要先找他的经纪人，这就是很矛盾，你是想直接饶过他的代理，谁知道返回的还是他的代理，这就是强制代理，你可以不用知道代理的存在，但是你的所作所为还是需要代理为你提供。
+
+强制代理的概念就是要从真实的角色查找到代理角色，不允许直接访问真实角色。高层模块只需要调用getProxy()就可以访问真实角色的所有方法，它根本不需要产生一个代理出来，代理的管理已经由真实角色自己完成。
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        IGamePlayer player = new GamePlayer("wc");
+        //强制代理
+        IGamePlayer proxy = proxy.getProxy();
+
+        System.out.println("start time:" + new Date());
+
+        proxy.login("wc","123456");
+        proxy.killBoss();
+        proxy.upgrade();
+
+        System.out.println("end time:" + new Date());
+    }
+}
+```
+
+### 动态代理
+
+代理类在程序运行时创建的代理方式被成为动态代理。 我们上面静态代理的例子中，代理类(studentProxy)是自己定义好的，在程序运行之前就已经编译完成。然而动态代理，代理类并不是在Java代码中定义的，而是在运行时根据我们在Java代码中的“指示”动态生成的。相比于静态代理， 动态代理的优势在于可以很方便的对代理类的函数进行统一的处理，而不用修改每个代理类中的方法。
+
+在java的java.lang.reflect包下提供了一个Proxy类和一个InvocationHandler接口，通过这个类和这个接口可以生成JDK动态代理类和动态代理对象。
+
+- 创建一个InvocationHandler对象
+- 使用Proxy类的getProxyClass静态方法生成一个动态代理类stuProxyClass
+- 获得stuProxyClass 中一个带InvocationHandler参数的构造器constructor
+- 通过构造器constructor来创建一个动态实例stuProxy
+
+创建StuInvocationHandler类，实现InvocationHandler接口，这个类中持有一个被代理对象的实例target。InvocationHandler中有一个invoke方法，所有执行代理对象的方法都会被替换成执行invoke方法。
+
+在invoke方法中执行被代理对象target的相应方法。当然，在代理过程中，我们在真正执行被代理对象的方法前加入自己其他处理。这也是Spring中的AOP实现的主要原理，这里还涉及到一个很重要的关于java反射方面的基础知识。
+
+jdk为我们的生成了一个叫$Proxy0（这个名字后面的0是编号，有多个代理类会一次递增）的代理类，这个类文件时放在内存中的，我们在创建代理对象时，就是通过反射获得这个类的构造方法，然后创建的代理实例。通过对这个生成的代理类源码的查看，我们很容易能看出，动态代理实现的具体过程。
+
+我们可以对InvocationHandler看做一个中介类，中介类持有一个被代理对象，在invoke方法中调用了被代理对象的相应方法。通过聚合方式持有被代理对象的引用，把外部对invoke的调用最终都转为对被代理对象的调用。
+
+代理类调用自己方法时，通过自身持有的中介类对象来调用中介类对象的invoke方法，从而达到代理执行被代理对象的方法。也就是说，动态代理通过中介类实现了具体的代理功能。
+
+生成的代理类：$Proxy0 extends Proxy implements Person，我们看到代理类继承了Proxy类，所以也就决定了java动态代理只能对接口进行代理，Java的继承机制注定了这些动态代理类们无法实现对class的动态代理。
